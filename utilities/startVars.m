@@ -11,7 +11,7 @@ initVars = who;
 VSS_COMMAND = 0;       % 0: Signal Editor, 1: Joystick, 2: Pre-saved data, 3: Pre-saved data in a Spreadsheet
 VSS_SENSORS = 1;       % 0: Feedthrough, 1: Dynamics
 VSS_ENVIRONMENT = 0;   % 0: Constant, 1: Variable
-VSS_VISUALIZATION = 3; % 0: Scopes, 1: Send values to workspace, 2: FlightGear, 3: Simulink 3D.
+VSS_VISUALIZATION = 0; % 0: Scopes, 1: Send values to workspace, 2: FlightGear, 3: Simulink 3D.
 VSS_VEHICLE = 1;       % 0: Linear Airframe, 1: Nonlinear Airframe.
 
 % Bus definitions
@@ -28,7 +28,7 @@ Ts= 0.005;   % Flight Control System sample rate
 VTs = 40*Ts; % Image processing sampling rate
 
 % Simulation time
-TFinal = 30;
+TFinal = 100;
 
 % Geometric properties
 thrustArm = 0.10795;
