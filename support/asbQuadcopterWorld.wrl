@@ -1,0 +1,141 @@
+#VRML V2.0 utf8
+
+# Copyright 2015-2022 The MathWorks, Inc.
+DEF Trajectory Transform {
+  children Inline {
+    url "asbQuadcopterTrajectory.wrl" 
+  }
+}
+DEF AHMap Transform {
+  translation 50.67 -0.1 62.48
+  rotation 0 1 0 -1.57
+  children Group {
+    children Inline {
+      url "asbQuadcopterAHBase.wrl" 
+    }
+  }
+}
+DEF QuadBody Transform {
+  translation 57 0.001765 95
+  scaleOrientation 0 1 0 0
+  scale 4 4 4
+  children [
+    DEF Airframe Transform {
+      scaleOrientation 1 0 0 0
+      rotation 0 1 0 0
+      children Inline {
+        url "asbQuadcopterBody.wrl" 
+      }
+    }
+    DEF Blade1 Transform {
+      translation 0.0425 0.015 -0.0425
+      children Inline {
+        url "asbQuadcopterBladeCW.wrl" 
+      }
+    }
+    DEF Blade2 Transform {
+      translation 0.0425 0.015 0.0425
+      children Inline {
+        url "asbQuadcopterBladeCCW.wrl" 
+      }
+    }
+    DEF Blade3 Transform {
+      translation -0.0425 0.015 0.0425
+      children Inline {
+        url "asbQuadcopterBladeCW.wrl" 
+      }
+    }
+    DEF Blade4 Transform {
+      translation -0.0425 0.015 -0.0425
+      children Inline {
+        url "asbQuadcopterBladeCCW.wrl" 
+      }
+    }
+    DEF Camera Viewpoint {
+      description "Quadcopter Camera"
+      position 0 -0.1 0
+      orientation 1 0 0 -1.57
+    }
+    DEF OnQuad Viewpoint {
+      description "Chase"
+      position -1 0.25 0
+      orientation 0 1 0 -1.57
+    }
+
+    DEF Point_Behind_Quad Transform {
+      translation -2 0 0
+    }
+
+  ]
+}
+
+DEF LandingMarker Transform {                                                    
+  translation 57 0.02 97
+  children Shape {
+    appearance Appearance {
+      material Material {
+        diffuseColor 1 0 0
+      }
+    }
+    geometry Box {
+      size 0.3 0.1 0.3
+    }
+  }
+}
+
+
+DEF IsoNoRotation Viewpoint {
+  description "Isometric - No Rotation"
+  position 57.9009 0.670747 95.99
+  orientation -0.46727 0.858698 0.210466 0.847752
+}
+
+
+#DEF IsoView_Offset Transform {
+#  translation 57 0.001765 95
+#  children [
+#    DEF IsoNoRot Viewpoint {
+#      description "Isometric - No Rotation 2"
+#      position 0.9009 0.668982  0.99 
+#      # 57.9009 0.670747 95.99
+#      orientation -0.46727 0.858698 0.210466 0.847752
+#    }
+#  ]
+#}
+
+#DEF ObserveView_Parent Transform {
+#  translation 57 0.001765 95
+#  children [
+#    DEF OnQuadNoRot Viewpoint {
+#      description "Observe Quad - No Rotation"
+#      position -4 1 0
+#      # 53 1.00177 95
+#      orientation 0 1 0 -1.57
+#    }
+#  ]
+#}
+
+# Viewpoint Roll&Pitch to be separated from Yaw - always behind, same elevation, looks on Quad
+DEF ChaseView_Parent Transform {
+  # Initial Quad translation 
+  translation 57 0.001765 95
+  children [
+    DEF ChaseView Viewpoint {
+      description "Chase - No Rotation"
+      position -2 0 0
+      orientation 0 1 0 -1.57
+    }
+  ]
+}
+
+
+#ROUTE QuadBody.translation TO IsoView_Offset.translation
+
+#ROUTE QuadBody.translation TO ObserveView_Parent.translation
+
+ROUTE QuadBody.translation TO ChaseView_Parent.translation
+
+
+
+
+
