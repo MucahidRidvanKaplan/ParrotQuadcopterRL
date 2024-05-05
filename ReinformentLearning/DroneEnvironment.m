@@ -14,7 +14,7 @@ classdef DroneEnvironment < rl.env.MATLABEnvironment
     properties
         % Drone dynamics parameters
         MaxVelocity = 1; % Maximum velocity of the drone
-        TimeStep = 0.1; % Time step for simulation
+        TimeStep = 0.005; % Time step for simulation
         
         % Environment parameters
         SquareSize = 5; % Size of the square (meters)
