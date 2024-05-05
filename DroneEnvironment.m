@@ -1,3 +1,15 @@
+%explanation
+%step           : simulates one step of interaction between the agent and the environment.
+%                 It takes an action (velocity commands) as input, updates the drone's position
+%                 based on these commands, calculates the reward, and checks if the episode is done
+%                 based on termination conditions.
+%reset          : resets the environment to its initial state at the beginning of each episode
+%getObservation :returns the current observation (state) of the environment, which in this case is the drone's position.
+%calculateReward : calculates the reward based on the current state, which is the negative distance
+%                  to the target (center of the square). 
+%isEpisodeDone   : checks if the episode is done based on termination conditions, 
+%                   which in this case is after the drone has drawn the square and returned to the starting position
+
 classdef DroneEnvironment < rl.env.MATLABEnvironment
     properties
         % Drone dynamics parameters
