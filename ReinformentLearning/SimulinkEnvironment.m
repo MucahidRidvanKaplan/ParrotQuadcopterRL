@@ -27,7 +27,7 @@ agentObj.SampleTime = Ts;
 env = rlSimulinkEnv(mdl,"flightController/Flight Controller/Attitude/" +...
     "RL Attitude Agent/RL Agent",observationInfo,actionInfo);
 
-
+validateEnvironment(env)
 return
 env.ResetFcn = @(in)localResetFcn(in);
 
