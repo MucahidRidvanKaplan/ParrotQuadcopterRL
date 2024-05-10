@@ -8,16 +8,16 @@ actionInfo = rlNumericSpec([2 1]);
 actionInfo.Name = "Tau_pitch_roll";
 
 open_system("flightController/Flight Controller/Attitude/" +...
-    "RL Attitude Agent/observations")
+    "Roll & Pitch RL Agent/observations")
 
-observationInfo = rlNumericSpec([6 1],...
-    LowerLimit=[-inf -inf -inf -inf -inf -inf]',...
-    UpperLimit=[ inf  inf inf inf  inf inf]');
+observationInfo = rlNumericSpec([8 1],...
+    LowerLimit = -100.*ones(8,1),...
+    UpperLimit = 100.*ones(8,1));
 observationInfo.Name = "observations";
 observationInfo.Description = "roll pitch vs.";
 
 open_system("flightController/Flight Controller/Attitude/" +...
-    "RL Attitude Agent/rewardFunction")
+    "Roll & Pitch RL Agent/rewardFunction")
 
 
 agentObj = rlDDPGAgent(observationInfo,actionInfo);
@@ -25,7 +25,7 @@ agentObj.SampleTime = Ts;
 
 
 env = rlSimulinkEnv(mdl,"flightController/Flight Controller/Attitude/" +...
-    "RL Attitude Agent/RL Agent",observationInfo,actionInfo);
+    "Roll & Pitch RL Agent/RL Agent",observationInfo,actionInfo);
 
 validateEnvironment(env)
 return
