@@ -1,26 +1,27 @@
-
-
-
 mdl = "asbQuadcopter";
-open_system(mdl)
+% open_system(mdl)
 
 actionInfo = rlNumericSpec([2 1]);
 actionInfo.Name = "Tau_pitch_roll";
 
-open_system("flightController/Flight Controller/Attitude/" +...
-    "Roll & Pitch RL Agent/observations")
+% open_system("flightController/Flight Controller/Attitude/" +...
+%     "Roll & Pitch RL Agent/observations")
 
-observationInfo = rlNumericSpec([8 1],...
-    LowerLimit = -100.*ones(8,1),...
-    UpperLimit = 100.*ones(8,1));
+state_number = 12;
+LimitVector = [100 100 100 pi pi pi 2 2 2 pi pi pi]';
+observationInfo = rlNumericSpec([state_number 1],...
+    LowerLimit = -LimitVector,...
+    UpperLimit = LimitVector);
 observationInfo.Name = "observations";
 observationInfo.Description = "roll pitch vs.";
 
-open_system("flightController/Flight Controller/Attitude/" +...
-    "Roll & Pitch RL Agent/rewardFunction")
+% open_system("flightController/Flight Controller/Attitude/" +...
+%     "Roll & Pitch RL Agent/rewardFunction")
 
 
-agentObj = rlDDPGAgent(observationInfo,actionInfo);
+% agentObj = rlDDPGAgent(observationInfo,actionInfo);
+agentObj = rlPPOAgent(observationInfo,actionInfo);
+
 agentObj.SampleTime = Ts;
 
 
