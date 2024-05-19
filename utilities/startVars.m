@@ -28,7 +28,7 @@ Ts= 0.005;   % Flight Control System sample rate
 VTs = 40*Ts; % Image processing sampling rate
 
 % Simulation time
-TFinal = 100;
+TFinal = 10;
 
 % Geometric properties
 thrustArm = 0.10795;

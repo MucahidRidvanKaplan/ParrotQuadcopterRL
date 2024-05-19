@@ -19,10 +19,12 @@ observationInfo.Description = "roll pitch vs.";
 %     "Roll & Pitch RL Agent/rewardFunction")
 
 
-% agentObj = rlDDPGAgent(observationInfo,actionInfo);
-agentObj = rlPPOAgent(observationInfo,actionInfo);
+initOpts = rlAgentInitializationOptions(NumHiddenUnit=2,UseRNN=true);
+DDPGagentObj = rlDDPGAgent(observationInfo,actionInfo,initOpts);
+DDPGagentObj.SampleTime = Ts;
 
-agentObj.SampleTime = Ts;
+PPOagentObj = rlPPOAgent(observationInfo,actionInfo,initOpts);
+PPOagentObj.SampleTime = Ts;
 
 
 env = rlSimulinkEnv(mdl,"flightController/Flight Controller/Attitude/" +...
