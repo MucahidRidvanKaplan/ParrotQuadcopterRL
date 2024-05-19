@@ -1,8 +1,10 @@
 mdl = "asbQuadcopter";
 % open_system(mdl)
 
-actionInfo = rlNumericSpec([2 1]);
-actionInfo.Name = "Tau_pitch_roll";
+
+%% Roll Pitch
+pitch_roll_actionInfo = rlNumericSpec([2 1]);
+pitch_roll_actionInfo.Name = "Tau_pitch_roll";
 
 % open_system("flightController/Flight Controller/Attitude/" +...
 %     "Roll & Pitch RL Agent/observations")
@@ -20,19 +22,53 @@ observationInfo.Description = "roll pitch vs.";
 
 
 initOpts = rlAgentInitializationOptions(NumHiddenUnit=2,UseRNN=true);
-DDPGagentObj = rlDDPGAgent(observationInfo,actionInfo,initOpts);
+DDPGagentObj = rlDDPGAgent(observationInfo,pitch_roll_actionInfo,initOpts);
 DDPGagentObj.SampleTime = Ts;
 
-PPOagentObj = rlPPOAgent(observationInfo,actionInfo,initOpts);
+PPOagentObj = rlPPOAgent(observationInfo,pitch_roll_actionInfo,initOpts);
 PPOagentObj.SampleTime = Ts;
 
 
-env = rlSimulinkEnv(mdl,"flightController/Flight Controller/Attitude/" +...
-    "Roll & Pitch RL Agent/RL Agent",observationInfo,actionInfo);
+env_rollPitch = rlSimulinkEnv(mdl,"flightController/Flight Controller/Attitude/" +...
+    "Roll & Pitch RL Agent/RL Agent",observationInfo,pitch_roll_actionInfo);
 
-validateEnvironment(env)
+validateEnvironment(env_rollPitch)
 return
-env.ResetFcn = @(in)localResetFcn(in);
+
+%% Yaw
+yaw_actionInfo = rlNumericSpec([1 1]);
+yaw_actionInfo.Name = "Tau_yaw";
+
+% open_system("flightController/Flight Controller/Yaw/" +...
+%     "Yaw RL Agent/observations")
+
+state_number = 12;
+LimitVector = [100 100 100 pi pi pi 2 2 2 pi pi pi]';
+observationInfo = rlNumericSpec([state_number 1],...
+    LowerLimit = -LimitVector,...
+    UpperLimit = LimitVector);
+observationInfo.Name = "observations";
+observationInfo.Description = "roll pitch vs.";
+
+% open_system("flightController/Flight Controller/Yaw/" +...
+%     "Yaw RL Agent/rewardFunction")
+
+
+initOpts = rlAgentInitializationOptions(NumHiddenUnit=2,UseRNN=true);
+DDPGagent2Obj = rlDDPGAgent(observationInfo,yaw_actionInfo,initOpts);
+DDPGagent2Obj.SampleTime = Ts;
+
+PPOagent2Obj = rlPPOAgent(observationInfo,yaw_actionInfo,initOpts);
+PPOagent2Obj.SampleTime = Ts;
+
+
+env_yaw = rlSimulinkEnv(mdl,"flightController/Flight Controller/Yaw/" +...
+    "Yaw RL Agent/RL Agent",observationInfo,yaw_actionInfo);
+
+validateEnvironment(env_yaw)
+
+%%
+env_rollPitch.ResetFcn = @(in)localResetFcn(in);
 
 
 function in = localResetFcn(in)
