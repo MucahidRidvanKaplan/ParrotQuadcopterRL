@@ -15,7 +15,6 @@
 helpsearch*/
 
 # Simulink code generation folders
-resources/
 slprj/
 sccprj/
 
