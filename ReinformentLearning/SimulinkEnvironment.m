@@ -3,14 +3,18 @@ mdl = "asbQuadcopter";
 
 
 %% Roll Pitch
-pitch_roll_actionInfo = rlNumericSpec([2 1]);
+action_number = 2;
+LimitVector = [5*1e-3 5*1e-3]';
+pitch_roll_actionInfo = rlNumericSpec([action_number 1],...
+    LowerLimit = -LimitVector,...
+    UpperLimit = LimitVector);
 pitch_roll_actionInfo.Name = "Tau_pitch_roll";
 
 % open_system("flightController/Flight Controller/Attitude/" +...
 %     "Roll & Pitch RL Agent/observations")
 
-state_number = 12;
-LimitVector = [100 100 100 pi pi pi 2 2 2 pi pi pi]';
+state_number = 6;
+LimitVector = [pi pi pi pi pi/4 pi/4]';
 observationInfo = rlNumericSpec([state_number 1],...
     LowerLimit = -LimitVector,...
     UpperLimit = LimitVector);
