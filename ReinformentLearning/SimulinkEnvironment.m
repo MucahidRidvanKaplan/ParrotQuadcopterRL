@@ -4,7 +4,7 @@ mdl = "asbQuadcopter";
 
 %% Roll Pitch
 action_number = 2;
-LimitVector = [5*1e-3 5*1e-3]';
+LimitVector = [4*1e-3 4*1e-3]';
 pitch_roll_actionInfo = rlNumericSpec([action_number 1],...
     LowerLimit = -LimitVector,...
     UpperLimit = LimitVector);
@@ -37,6 +37,23 @@ env_rollPitch = rlSimulinkEnv(mdl,"flightController/Flight Controller/Attitude/"
     "Roll & Pitch RL Agent/RL Agent",observationInfo,pitch_roll_actionInfo);
 
 validateEnvironment(env_rollPitch)
+
+trainOpts = rlTrainingOptions;
+
+trainOpts.MaxEpisodes = 2000;
+trainOpts.MaxStepsPerEpisode = TFinal/Ts;
+trainOpts.StopTrainingCriteria = "AverageReward";
+trainOpts.StopTrainingValue = -10;
+trainOpts.ScoreAveragingWindowLength = 5;
+trainOpts.SaveAgentCriteria = "EpisodeReward";
+trainOpts.SaveAgentValue = -1;
+trainOpts.SaveAgentDirectory = "savedAgents";
+trainOpts.Verbose = true;
+trainOpts.Plots = "training-progress";
+trainOpts.StopOnError = 'off';
+
+trainingInfo = train(DDPGagentObj,env_rollPitch,trainOpts);
+
 return
 
 %% Yaw
