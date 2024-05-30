@@ -1,5 +1,5 @@
 mdl = "asbQuadcopter";
-% open_system(mdl)
+% load_system(mdl)
 
 
 %% Roll Pitch
@@ -14,7 +14,7 @@ pitch_roll_actionInfo.Name = "Tau_pitch_roll";
 %     "Roll & Pitch RL Agent/observations")
 
 state_number = 6;
-LimitVector = [pi pi pi pi pi/4 pi/4]';
+LimitVector = [pi/6 pi/6 pi/6 pi/6 pi/4 pi/4]';
 observationInfo = rlNumericSpec([state_number 1],...
     LowerLimit = -LimitVector,...
     UpperLimit = LimitVector);
@@ -25,7 +25,7 @@ observationInfo.Description = "roll pitch vs.";
 %     "Roll & Pitch RL Agent/rewardFunction")
 
 
-initOpts = rlAgentInitializationOptions(NumHiddenUnit=2,UseRNN=true);
+initOpts = rlAgentInitializationOptions(NumHiddenUnit=4,UseRNN=true);
 DDPGagentObj = rlDDPGAgent(observationInfo,pitch_roll_actionInfo,initOpts);
 DDPGagentObj.SampleTime = Ts;
 
@@ -39,12 +39,12 @@ env_rollPitch = rlSimulinkEnv(mdl,"flightController/Flight Controller/Attitude/"
 validateEnvironment(env_rollPitch)
 
 trainOpts = rlTrainingOptions;
-
+FinalTrainingTime = 5;
 trainOpts.MaxEpisodes = 2000;
-trainOpts.MaxStepsPerEpisode = TFinal/Ts;
+trainOpts.MaxStepsPerEpisode = FinalTrainingTime/Ts;
 trainOpts.StopTrainingCriteria = "AverageReward";
-trainOpts.StopTrainingValue = -10;
-trainOpts.ScoreAveragingWindowLength = 5;
+trainOpts.StopTrainingValue = -100;
+trainOpts.ScoreAveragingWindowLength = 10;
 trainOpts.SaveAgentCriteria = "EpisodeReward";
 trainOpts.SaveAgentValue = -1;
 trainOpts.SaveAgentDirectory = "savedAgents";
@@ -52,8 +52,12 @@ trainOpts.Verbose = true;
 trainOpts.Plots = "training-progress";
 trainOpts.StopOnError = 'off';
 
-trainingInfo = train(DDPGagentObj,env_rollPitch,trainOpts);
+trainOpts.UseParallel = false;
 
+trainingInfo = train(PPOagentObj,env_rollPitch,trainOpts);
+% trainingInfo.EpisodeIndex(end)
+trainingInfo.TrainingOptions.MaxEpisodes = 5000;
+trainingInfo = train(PPOagentObj,env_rollPitch,trainingInfo);
 return
 
 %% Yaw
