@@ -4,7 +4,7 @@ mdl = "asbQuadcopter";
 
 %% Roll Pitch
 action_number = 2;
-LimitVector = [4*1e-3 4*1e-3]';
+LimitVector = [0.005 0.005]';
 pitch_roll_actionInfo = rlNumericSpec([action_number 1],...
     LowerLimit = -LimitVector,...
     UpperLimit = LimitVector);
@@ -15,9 +15,7 @@ pitch_roll_actionInfo.Name = "Tau_pitch_roll";
 
 state_number = 6;
 LimitVector = [pi/6 pi/6 pi/6 pi/6 pi/4 pi/4]';
-observationInfo = rlNumericSpec([state_number 1],...
-    LowerLimit = -LimitVector,...
-    UpperLimit = LimitVector);
+observationInfo = rlNumericSpec([state_number 1]);
 observationInfo.Name = "observations";
 observationInfo.Description = "roll pitch vs.";
 
@@ -25,13 +23,16 @@ observationInfo.Description = "roll pitch vs.";
 %     "Roll & Pitch RL Agent/rewardFunction")
 
 
-initOpts = rlAgentInitializationOptions(NumHiddenUnit=4,UseRNN=true);
+initOpts = rlAgentInitializationOptions(NumHiddenUnit=64,UseRNN=true);
 DDPGagentObj = rlDDPGAgent(observationInfo,pitch_roll_actionInfo,initOpts);
 DDPGagentObj.SampleTime = Ts;
 
 PPOagentObj = rlPPOAgent(observationInfo,pitch_roll_actionInfo,initOpts);
 PPOagentObj.SampleTime = Ts;
+PPOagentObj.AgentOptions.ActorOptimizerOptions.LearnRate = 0.01;
 
+PPOactorNet = getModel(getActor(PPOagentObj));
+PPOcriticNet = getModel(getCritic(PPOagentObj));
 
 env_rollPitch = rlSimulinkEnv(mdl,"flightController/Flight Controller/Attitude/" +...
     "Roll & Pitch RL Agent/RL Agent",observationInfo,pitch_roll_actionInfo);
@@ -39,22 +40,24 @@ env_rollPitch = rlSimulinkEnv(mdl,"flightController/Flight Controller/Attitude/"
 validateEnvironment(env_rollPitch)
 
 trainOpts = rlTrainingOptions;
-FinalTrainingTime = 5;
+FinalTrainingTime = 10;
 trainOpts.MaxEpisodes = 2000;
 trainOpts.MaxStepsPerEpisode = FinalTrainingTime/Ts;
 trainOpts.StopTrainingCriteria = "AverageReward";
-trainOpts.StopTrainingValue = -100;
+trainOpts.StopTrainingValue = 1500;
 trainOpts.ScoreAveragingWindowLength = 10;
 trainOpts.SaveAgentCriteria = "EpisodeReward";
 trainOpts.SaveAgentValue = -1;
 trainOpts.SaveAgentDirectory = "savedAgents";
 trainOpts.Verbose = true;
 trainOpts.Plots = "training-progress";
-trainOpts.StopOnError = 'off';
+trainOpts.StopOnError = 'on';
 
 trainOpts.UseParallel = false;
 
 trainingInfo = train(PPOagentObj,env_rollPitch,trainOpts);
+return
+% Retraining from remaining episode
 % trainingInfo.EpisodeIndex(end)
 trainingInfo.TrainingOptions.MaxEpisodes = 5000;
 trainingInfo = train(PPOagentObj,env_rollPitch,trainingInfo);
