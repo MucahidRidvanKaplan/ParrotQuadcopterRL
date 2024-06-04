@@ -1,10 +1,10 @@
 mdl = "asbQuadcopter";
-% open_system(mdl)
+% load_system(mdl)
 
 
 %% Roll Pitch
 action_number = 2;
-LimitVector = [4*1e-3 4*1e-3]';
+LimitVector = [0.005 0.005]';
 pitch_roll_actionInfo = rlNumericSpec([action_number 1],...
     LowerLimit = -LimitVector,...
     UpperLimit = LimitVector);
@@ -14,10 +14,8 @@ pitch_roll_actionInfo.Name = "Tau_pitch_roll";
 %     "Roll & Pitch RL Agent/observations")
 
 state_number = 6;
-LimitVector = [pi pi pi pi pi/4 pi/4]';
-observationInfo = rlNumericSpec([state_number 1],...
-    LowerLimit = -LimitVector,...
-    UpperLimit = LimitVector);
+LimitVector = [pi/6 pi/6 pi/6 pi/6 pi/4 pi/4]';
+observationInfo = rlNumericSpec([state_number 1]);
 observationInfo.Name = "observations";
 observationInfo.Description = "roll pitch vs.";
 
@@ -25,13 +23,43 @@ observationInfo.Description = "roll pitch vs.";
 %     "Roll & Pitch RL Agent/rewardFunction")
 
 
-initOpts = rlAgentInitializationOptions(NumHiddenUnit=2,UseRNN=true);
+initOpts = rlAgentInitializationOptions(NumHiddenUnit=64,UseRNN=true);
+
 DDPGagentObj = rlDDPGAgent(observationInfo,pitch_roll_actionInfo,initOpts);
 DDPGagentObj.SampleTime = Ts;
+DDPGagentObj.AgentOptions.ActorOptimizerOptions.LearnRate = 0.01;
+
+DDPG_actorNet = getModel(getActor(DDPGagentObj));
+DDPG_criticNet = getModel(getCritic(DDPGagentObj));
+
+figure("Position",[680 458 720 420]);
+subplot(1,2,1);
+plot(layerGraph(DDPG_actorNet));
+title('DDPG Actor Net')
+subplot(1,2,2);
+plot(layerGraph(DDPG_criticNet));
+title('DDPG Critic Net')
+if 0
+    exportgraphics(gcf,'DDPG_ActorCriticLayers.eps','ContentType','vector')
+end
 
 PPOagentObj = rlPPOAgent(observationInfo,pitch_roll_actionInfo,initOpts);
 PPOagentObj.SampleTime = Ts;
+PPOagentObj.AgentOptions.ActorOptimizerOptions.LearnRate = 0.01;
 
+PPO_actorNet = getModel(getActor(PPOagentObj));
+PPO_criticNet = getModel(getCritic(PPOagentObj));
+
+figure("Position",[680 458 720 420]);
+subplot(1,2,1);
+plot(layerGraph(PPO_actorNet));
+title('PPO Actor Net')
+subplot(1,2,2);
+plot(layerGraph(PPO_criticNet));
+title('PPO Critic Net')
+if 0
+    exportgraphics(gcf,'PPO_ActorCriticLayers.eps','ContentType','vector')
+end
 
 env_rollPitch = rlSimulinkEnv(mdl,"flightController/Flight Controller/Attitude/" +...
     "Roll & Pitch RL Agent/RL Agent",observationInfo,pitch_roll_actionInfo);
@@ -39,21 +67,37 @@ env_rollPitch = rlSimulinkEnv(mdl,"flightController/Flight Controller/Attitude/"
 validateEnvironment(env_rollPitch)
 
 trainOpts = rlTrainingOptions;
-
+FinalTrainingTime = 10;
 trainOpts.MaxEpisodes = 2000;
-trainOpts.MaxStepsPerEpisode = TFinal/Ts;
+trainOpts.MaxStepsPerEpisode = FinalTrainingTime/Ts;
 trainOpts.StopTrainingCriteria = "AverageReward";
-trainOpts.StopTrainingValue = -10;
-trainOpts.ScoreAveragingWindowLength = 5;
+trainOpts.StopTrainingValue = 1500;
+trainOpts.ScoreAveragingWindowLength = 10;
 trainOpts.SaveAgentCriteria = "EpisodeReward";
-trainOpts.SaveAgentValue = -1;
+trainOpts.SaveAgentValue = 1000;
 trainOpts.SaveAgentDirectory = "savedAgents";
 trainOpts.Verbose = true;
 trainOpts.Plots = "training-progress";
-trainOpts.StopOnError = 'off';
+trainOpts.StopOnError = 'on';
 
-trainingInfo = train(DDPGagentObj,env_rollPitch,trainOpts);
+trainOpts.UseParallel = false;
 
+answer = questdlg('Would you like training for RL?', ...
+	'Training', ...
+	'Yes','No','Yes');
+% Handle response
+switch answer
+    case 'Yes'
+        trainingInfo = train(PPOagentObj,env_rollPitch,trainOpts);
+    case 'No'
+        
+end
+
+return
+% Retraining from remaining episode
+% trainingInfo.EpisodeIndex(end)
+trainingInfo.TrainingOptions.MaxEpisodes = 5000;
+trainingInfo = train(PPOagentObj,env_rollPitch,trainingInfo);
 return
 
 %% Yaw
