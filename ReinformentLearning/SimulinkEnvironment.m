@@ -24,15 +24,42 @@ observationInfo.Description = "roll pitch vs.";
 
 
 initOpts = rlAgentInitializationOptions(NumHiddenUnit=64,UseRNN=true);
+
 DDPGagentObj = rlDDPGAgent(observationInfo,pitch_roll_actionInfo,initOpts);
 DDPGagentObj.SampleTime = Ts;
+DDPGagentObj.AgentOptions.ActorOptimizerOptions.LearnRate = 0.01;
+
+DDPG_actorNet = getModel(getActor(DDPGagentObj));
+DDPG_criticNet = getModel(getCritic(DDPGagentObj));
+
+figure("Position",[680 458 720 420]);
+subplot(1,2,1);
+plot(layerGraph(DDPG_actorNet));
+title('DDPG Actor Net')
+subplot(1,2,2);
+plot(layerGraph(DDPG_criticNet));
+title('DDPG Critic Net')
+if 0
+    exportgraphics(gcf,'DDPG_ActorCriticLayers.eps','ContentType','vector')
+end
 
 PPOagentObj = rlPPOAgent(observationInfo,pitch_roll_actionInfo,initOpts);
 PPOagentObj.SampleTime = Ts;
 PPOagentObj.AgentOptions.ActorOptimizerOptions.LearnRate = 0.01;
 
-PPOactorNet = getModel(getActor(PPOagentObj));
-PPOcriticNet = getModel(getCritic(PPOagentObj));
+PPO_actorNet = getModel(getActor(PPOagentObj));
+PPO_criticNet = getModel(getCritic(PPOagentObj));
+
+figure("Position",[680 458 720 420]);
+subplot(1,2,1);
+plot(layerGraph(PPO_actorNet));
+title('PPO Actor Net')
+subplot(1,2,2);
+plot(layerGraph(PPO_criticNet));
+title('PPO Critic Net')
+if 0
+    exportgraphics(gcf,'PPO_ActorCriticLayers.eps','ContentType','vector')
+end
 
 env_rollPitch = rlSimulinkEnv(mdl,"flightController/Flight Controller/Attitude/" +...
     "Roll & Pitch RL Agent/RL Agent",observationInfo,pitch_roll_actionInfo);
@@ -55,7 +82,17 @@ trainOpts.StopOnError = 'on';
 
 trainOpts.UseParallel = false;
 
-trainingInfo = train(PPOagentObj,env_rollPitch,trainOpts);
+answer = questdlg('Would you like training for RL?', ...
+	'Training', ...
+	'Yes','No','Yes');
+% Handle response
+switch answer
+    case 'Yes'
+        trainingInfo = train(PPOagentObj,env_rollPitch,trainOpts);
+    case 'No'
+        
+end
+
 return
 % Retraining from remaining episode
 % trainingInfo.EpisodeIndex(end)
