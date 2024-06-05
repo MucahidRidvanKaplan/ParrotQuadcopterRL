@@ -6,7 +6,12 @@ Reinforcement Learning for Parrot Mambo Minidrone Attitude Control
 ### This project uses:
 * Matlab
 * Simulink
+* Aerospace Toolbox
 * Aerospace Blockset
+* Control System Toolbox
+* Image Processing Toolbox
+* Deep Learning Toolbox
+* Reinforcement Learning Toolbox
 * Optimization Toolbox
 * Simulink Control Design
 * Signal Processing Toolbox
@@ -20,9 +25,9 @@ For more details on the quadcopter implementation, see [Model a Quadcopter Based
 **Note:** Hardware integration with the example would require installation of the [Simulink Support Package for Parrot Minidrones](https://www.mathworks.com/hardware-support/parrot-minidrones.html) and a C/C++ compiler.
 
 ## Open the Quadcopter Project
-Run the following command to create and open a working copy of the project files for this example:
+Run the following command to create and open a working copy of the project files for this project:
 ```
-openProject('asbQuadcopter');
+openProject('Quadcopter');
 ```
 
 ## Design
