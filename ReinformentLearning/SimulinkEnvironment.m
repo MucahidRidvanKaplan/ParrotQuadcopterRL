@@ -41,6 +41,7 @@ plot(layerGraph(DDPG_criticNet));
 title('DDPG Critic Net')
 if 0
     exportgraphics(gcf,'DDPG_ActorCriticLayers.eps','ContentType','vector')
+    exportgraphics(gcf,'DDPG_ActorCriticLayers.emf','ContentType','vector')
 end
 
 PPOagentObj = rlPPOAgent(observationInfo,pitch_roll_actionInfo,initOpts);
@@ -59,6 +60,7 @@ plot(layerGraph(PPO_criticNet));
 title('PPO Critic Net')
 if 0
     exportgraphics(gcf,'PPO_ActorCriticLayers.eps','ContentType','vector')
+    exportgraphics(gcf,'PPO_ActorCriticLayers.emf','ContentType','vector')
 end
 
 env_rollPitch = rlSimulinkEnv(mdl,"flightController/Flight Controller/Attitude/" +...
@@ -163,7 +165,7 @@ trainOpts = rlTrainingOptions(...
     StopTrainingCriteria="AverageReward",...
     StopTrainingValue=1500);
 
-doTraining = false;
+doTraining = true;
 
 if doTraining
     % Train the agent.
@@ -173,10 +175,19 @@ else
 trainingStats = [];
 agent = TD3_agentObj;
 
+% Bloğun yolunu belirt
+blockPath = "flightController/Flight Controller/Attitude/" +...
+    "Roll & Pitch RL Agent/RL Agent";
+
 for episode = 1:maxepisodes
     % Ortamı sıfırla
     observation = reset(env);
     totalReward = 0;
+    % Bloğun portlarını elde et
+    portHandles = get_param(blockPath, 'PortHandles');
+    
+    % Giriş portunu al (ilk giriş portu)
+    observation = portHandles.Inport(1);
     
     for step = 1:maxsteps
         % Gözlemi uygun boyutta kontrol et

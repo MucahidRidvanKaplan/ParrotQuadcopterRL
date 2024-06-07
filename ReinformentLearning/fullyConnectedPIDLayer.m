@@ -28,7 +28,7 @@ classdef fullyConnectedPIDLayer < nnet.layer.Layer
         end
         
         function Z = predict(obj, X)
-            % obj.Weights = max(min(obj.Weights, obj.upperLimit), obj.lowerLimit);
+            obj.Weights = max(min(obj.Weights, obj.upperLimit), obj.lowerLimit);
             Z1 = fullyconnect([X(1) X(3) X(5)]',...
                 [obj.Weights(1) obj.Weights(3) obj.Weights(5)], 0, 'DataFormat','CB');
             Z2 = fullyconnect([X(2) X(4) X(6)]',...
