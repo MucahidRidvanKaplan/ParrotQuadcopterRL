@@ -11,7 +11,7 @@ xlabel('Steps')
 ylabel('Episode Reward')
 legend("EpisodeReward","AverageReward","EpisodeQ0","Location","best")
 
-if 1
+if 0
     exportgraphics(gcf,'trainingInfo_04062024.eps','ContentType','vector')
     exportgraphics(gcf,'trainingInfo_04062024.emf','ContentType','vector')
 end
@@ -83,7 +83,7 @@ xlabel('Steps')
 ylabel('Episode Reward')
 legend("EpisodeReward","AverageReward","EpisodeQ0","Location","best")
 
-if 1
+if 0
     exportgraphics(gcf,'trainingInfo_27052024.eps','ContentType','vector')
     exportgraphics(gcf,'trainingInfo_27052024.emf','ContentType','vector')
 end
